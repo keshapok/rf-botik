@@ -6,15 +6,29 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest  # Используем Windows (обязательно для WinForms и OpenCV)
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
 
+    - name: Find .csproj file
+      id: find_proj
+      run: |
+        # Ищем .csproj файл в корне или поддиректориях
+        $proj = Get-ChildItem -Recurse -Filter *.csproj | Select-Object -First 1
+        if ($proj) {
+          echo "PROJECT_PATH=$($proj.FullName)" >> $env:GITHUB_ENV
+          echo "PROJECT_DIR=$($proj.DirectoryName)" >> $env:GITHUB_ENV
+          echo "PROJECT_NAME=$($proj.BaseName)" >> $env:GITHUB_ENV
+        } else {
+          echo "::error::No .csproj file found!"
+          exit 1
+        }
+
     - name: Setup .NET 8.x
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'  # Явно указываем .NET 8
+        dotnet-version: '8.0.x'
 
     - name: Cache NuGet packages
       uses: actions/cache@v4
@@ -23,21 +37,25 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore "${{ env.PROJECT_PATH }}"
+      working-directory: "${{ env.PROJECT_DIR }}"
 
     - name: Build
-      run: dotnet build -c Release --no-restore -p:EnableDefaultCompileItems=false
+      run: dotnet build "${{ env.PROJECT_PATH }}" -c Release --no-restore -p:EnableDefaultCompileItems=false
+      working-directory: "${{ env.PROJECT_DIR }}"
 
     - name: Publish
       run: |
-        dotnet publish -c Release -r win-x64 `
+        dotnet publish "${{ env.PROJECT_PATH }}" -c Release `
+          -r win-x64 `
           -p:PublishSingleFile=true `
           -p:SelfContained=true `
           -p:IncludeNativeLibrariesForSelfExtract=true `
           --no-build
+      working-directory: "${{ env.PROJECT_DIR }}"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: RF-Bot
-        path: bin/Release/net8.0-windows/win-x64/publish/
+        name: ${{ env.PROJECT_NAME }}-Release
+        path: "${{ env.PROJECT_DIR }}/bin/Release/net8.0-windows/win-x64/publish/"
