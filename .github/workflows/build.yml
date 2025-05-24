@@ -17,11 +17,19 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Install OpenCV dependencies
+      shell: pwsh
       run: |
-        choco install opencv -y
-        refreshenv
-        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-        refreshenv
+        # Устанавливаем OpenCV
+        choco install opencv -y --no-progress --force
+        # Явно обновляем переменные среды
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        # Проверяем, что OpenCV установился
+        if (Test-Path "C:\tools\opencv") {
+          echo "OpenCV installed successfully at C:\tools\opencv"
+        } else {
+          echo "::error::OpenCV installation failed!"
+          exit 1
+        }
 
     - name: Cache NuGet packages
       uses: actions/cache@v4
@@ -30,6 +38,7 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
 
     - name: Fix Resources.resx
+      shell: pwsh
       run: |
         # Удаляем бинарные ресурсы, если они вызывают ошибки
         if (Test-Path "rf-bot/Resources.resx") {
@@ -47,6 +56,7 @@ jobs:
       working-directory: rf-bot
 
     - name: Publish
+      shell: pwsh
       run: |
         dotnet publish -c Release `
           -r win-x64 `
