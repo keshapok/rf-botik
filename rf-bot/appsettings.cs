@@ -1,0 +1,19 @@
+﻿{
+  "GameSettings": {
+    "ProcessName": "rf_online",
+    "WindowWidth": 1024,
+    "WindowHeight": 768,
+    "CaptureOffset": {
+      "X": 0,
+      "Y": 0,
+      "Width": 1024,
+      "Height": 768
+    },
+    "BotSettings": {
+      "AttackDelay": 900,
+      "SearchDelay": 500,
+      "CursorCheckDelay": 900,
+      "LootKey": "F"
+    }
+  }
+}
