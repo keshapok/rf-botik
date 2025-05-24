@@ -6,15 +6,15 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-latest  # Используем Windows (обязательно для WinForms и OpenCV)
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup .NET
+    - name: Setup .NET 8.x
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: '8.0.x'  # Явно указываем .NET 8
 
     - name: Cache NuGet packages
       uses: actions/cache@v4
@@ -22,31 +22,22 @@ jobs:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
 
-    - name: Find .csproj file
-      id: find_proj
-      run: |
-        # Ищем первый .csproj файл в репозитории
-        $proj = Get-ChildItem -Recurse -Filter *.csproj | Select-Object -First 1
-        if ($proj) {
-          echo "PROJECT_PATH=$($proj.FullName)" >> $env:GITHUB_ENV
-          echo "PROJECT_DIR=$($proj.DirectoryName)" >> $env:GITHUB_ENV
-        } else {
-          echo "::error::No .csproj file found in the repository!"
-          exit 1
-        }
-
     - name: Restore dependencies
-      run: dotnet restore "${{ env.PROJECT_PATH }}"
-      working-directory: "${{ env.PROJECT_DIR }}"
+      run: dotnet restore
 
-    - name: Build and Publish
+    - name: Build
+      run: dotnet build -c Release --no-restore -p:EnableDefaultCompileItems=false
+
+    - name: Publish
       run: |
-        dotnet build "${{ env.PROJECT_PATH }}" -c Release --no-restore
-        dotnet publish "${{ env.PROJECT_PATH }}" -c Release -p:PublishSingleFile=true -p:SelfContained=true -r win-x64 --no-build
-      working-directory: "${{ env.PROJECT_DIR }}"
+        dotnet publish -c Release -r win-x64 `
+          -p:PublishSingleFile=true `
+          -p:SelfContained=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          --no-build
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: RF-Bot
-        path: "${{ env.PROJECT_DIR }}/bin/Release/net8.0-windows/win-x64/publish/"
+        path: bin/Release/net8.0-windows/win-x64/publish/
