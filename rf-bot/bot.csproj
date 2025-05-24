@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -11,7 +11,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems> <!-- Оставляем false -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,12 +32,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Исходные файлы -->
+    <!-- Исходные файлы (только ОДИН способ включения!) -->
+    <Compile Include="**\*.cs" /> <!-- Включает ВСЕ .cs-файлы в проекте рекурсивно -->
+    <!-- ИЛИ более точный вариант (если нужно исключить некоторые файлы): -->
+    <!--
     <Compile Include="Core\**\*.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="MainForm.cs" />
-    <Compile Include="Core\Input\*.cs" />
-    <Compile Include="Core\Vision\*.cs" />
+    -->
   </ItemGroup>
 
 </Project>
