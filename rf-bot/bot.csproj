@@ -23,8 +23,7 @@
 
   <ItemGroup>
     <!-- Ресурсы -->
-    <EmbeddedResource Include="Resources\hp_bar_template.png" />
-    <Compile Update="Properties\Resources.Designer.cs">
+      <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
