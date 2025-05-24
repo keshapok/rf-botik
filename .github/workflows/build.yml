@@ -20,6 +20,8 @@ jobs:
       run: |
         choco install opencv -y
         refreshenv
+        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+        refreshenv
 
     - name: Cache NuGet packages
       uses: actions/cache@v4
