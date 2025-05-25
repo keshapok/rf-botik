@@ -35,6 +35,7 @@
     <Compile Include="**\*.cs" /> <!-- Включает ВСЕ .cs-файлы в проекте рекурсивно -->
     <!-- ИЛИ более точный вариант (если нужно исключить некоторые файлы): -->
     <!--
+    <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="Core\**\*.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="MainForm.cs" />
